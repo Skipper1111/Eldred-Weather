@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Eldred, NY Weather</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+        h1 {
+            text-align: center;
+            font-size: 3em;
+            margin: 0.2em 0;
+        }
+        .marquee {
+            white-space: nowrap;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        .marquee-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marquee 20s linear infinite;
+            font-size: 3em;
+        }
+        @keyframes marquee {
+            from { transform: translate(0, 0); }
+            to { transform: translate(-100%, 0); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Eldred, NY</h1>
+    <div class="marquee">
+        <div class="marquee-content" id="marquee-text">
+            Loading weather and time...
+        </div>
+    </div>
+    <script>
+        function updateClock() {
+            const now = new Date();
+            return now.toLocaleTimeString();
+        }
+
+        const latitude = 41.5800;
+        const longitude = -74.9168;
+        const weatherURL = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weathercode,windspeed_10m&timezone=auto`;
+
+        const weatherDescriptions = {
+            0: "Clear sky", 1: "Mainly clear", 2: "Partly cloudy", 3: "Overcast",
+            45: "Fog", 48: "Rime fog", 51: "Light drizzle", 53: "Moderate drizzle", 55: "Dense drizzle",
+            61: "Light rain", 63: "Moderate rain", 65: "Heavy rain",
+            71: "Light snow", 73: "Moderate snow", 75: "Heavy snow",
+            95: "Thunderstorm"
+        };
+
+        fetch(weatherURL)
+            .then(response => response.json())
+            .then(data => {
+                const weather = data.current;
+                const temp = weather.temperature_2m;
+                const code = weather.weathercode;
+                const wind = weather.windspeed_10m;
+                const desc = weatherDescriptions[code] || "Weather";
+
+                const clock = updateClock();
+                const message = `Time: ${clock} | Temp: ${temp}°F | ${desc} | Wind: ${wind} mph`;
+                document.getElementById('marquee-text').textContent = message;
+            })
+            .catch(() => {
+                document.getElementById('marquee-text').textContent = "Unable to load weather data.";
+            });
+
+        setInterval(() => {
+            const text = document.getElementById('marquee-text').textContent;
+            if (text.includes("Time:")) {
+                const parts = text.split("|");
+                const newClock = updateClock();
+                parts[0] = `Time: ${newClock} `;
+                document.getElementById('marquee-text').textContent = parts.join("|");
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
