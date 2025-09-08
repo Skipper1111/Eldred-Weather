@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="refresh" content="900">
+    <meta charset="UTF-8">
+    <title>Eldred Weather</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .header, .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+        .header img, .footer img {
+            height: 100px;
+        }
+        .content {
+            padding: 40px 20px;
+        }
+        .temp {
+            font-size: 100px;
+            font-weight: bold;
+        }
+        .desc {
+            font-size: 40px;
+            margin-top: 20px;
+        }
+        .date {
+            font-size: 20px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="MG Logo Cropped.jpg" alt="Monteleone Gardens Logo">
+        <img src="4 Grills Banner 24x36.png" alt="4 Grills Cider Co Logo">
+    </div>
+    <div class="content">
+        <div class="temp" id="temperature">-- °F</div>
+        <div class="desc" id="description">Loading...</div>
+        <div class="date">September 08, 2025</div>
+    </div>
+    <script>
+        async function getWeather() {
+            try {
+                const response = await fetch("https://api.open-meteo.com/v1/forecast?latitude=41.5834&longitude=-74.8316&current=temperature_2m,weathercode&temperature_unit=fahrenheit");
+                const data = await response.json();
+                const temp = data.current.temperature_2m;
+                const weathercode = data.current.weathercode;
+                const descriptions = [
+                    "Clear sky", "Mainly clear", "Partly cloudy", "Overcast", "Fog", "Drizzle", 
+                    "Freezing Drizzle", "Rain", "Freezing Rain", "Snow fall", "Snow grains", 
+                    "Rain showers", "Snow showers", "Thunderstorm", "Thunderstorm with hail"
+                ];
+                const description = descriptions[weathercode] || "Weather data unavailable";
+
+                document.getElementById("temperature").textContent = `${temp} °F`;
+                document.getElementById("description").textContent = description;
+            } catch (error) {
+                document.getElementById("description").textContent = "Failed to load weather data";
+            }
+        }
+        getWeather();
+    </script>
+</body>
+</html>
